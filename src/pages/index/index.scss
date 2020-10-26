@@ -1,0 +1,23 @@
+.index {
+  // 隐藏滚动条
+  overflow: hidden;
+
+  .at-grid {
+    height: 60%;
+  }
+
+  .at-grid__flex {
+    align-items: center;
+    height: 50%;
+    align-content: center;
+    margin-top: 20rpx;
+    .at-grid-item--rect .at-grid-item__content-inner .content-inner__img {
+      width: 100rpx;
+      height: 100rpx;
+      margin-right: 12rpx;
+    }
+    .content-inner__text {
+      font-size: 60rpx;
+    }
+  }
+}

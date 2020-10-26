@@ -1,0 +1,15 @@
+.questionnaire {
+  overflow: hidden;
+  .index {
+    overflow: auto;
+  }
+  .at-radio__option-container::before {
+    content: "\e94b";
+    font-family: iconfont;
+    color: #4e908ab3;
+    margin-right: 16rpx;
+  }
+  .at-radio__option {
+    padding-left: 23rpx;
+  }
+}
