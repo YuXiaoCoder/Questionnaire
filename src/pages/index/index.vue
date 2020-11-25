@@ -199,43 +199,6 @@ export default {
   created() {
     // 获取屏幕高度
     this.screenHeight = Taro.getSystemInfoSync().windowHeight;
-  },
-  mounted() {
-    // 获取Cookie
-    let cookie = Taro.getStorageSync("cookie");
-
-    if (cookie == undefined || cookie == null || cookie == "") {
-      // 登录
-      Taro.login({
-        success: res => {
-          Taro.request({
-            url: API_GATEWAY + "/login",
-            data: {
-              code: res.code
-            },
-            success: res => {
-              // 存储Cookie
-              Taro.setStorageSync("cookie", res.header['Set-Cookie'])
-              Taro.setStorageSync("user_id", res.data['user_id'])
-            },
-            fail: res => {
-              // 消息通知
-              Taro.atMessage({
-                'message': '请检查后端服务',
-                'type': 'error',
-              });
-            }
-          })
-        },
-        fail: res => {
-          // 消息通知
-          Taro.atMessage({
-            'message': '请检查网络',
-            'type': 'error',
-          });
-        }
-      });
-    }
   }
 }
 </script>

@@ -87,11 +87,14 @@ export default {
   },
   data () {
     return {
+      // 问题
       question: {
         id: 0,
         title: "新建问题",
         type: this.questionType
-      }
+      },
+      // 用户ID
+      userID: 0,
     }
   },
   components: {
@@ -107,6 +110,39 @@ export default {
     // 编辑问题: 转换问题对象
     if(this.questionItem){
       this.question = JSON.parse(JSON.stringify(this.questionItem))
+    }
+
+    // 用户ID
+    if (this.userID == 0) {
+      // 登录
+      Taro.login({
+        success: res => {
+          Taro.request({
+            url: API_GATEWAY + "/login",
+            data: {
+              code: res.code
+            },
+            success: res => {
+              // 存储用户ID
+              this.userID = res.data['user_id'];
+            },
+            fail: res => {
+              // 消息通知
+              Taro.atMessage({
+                'message': '请检查后端服务',
+                'type': 'error',
+              });
+            }
+          })
+        },
+        fail: res => {
+          // 消息通知
+          Taro.atMessage({
+            'message': '请检查网络',
+            'type': 'error',
+          });
+        }
+      });
     }
   },
   methods: {
@@ -132,7 +168,7 @@ export default {
           method: 'POST',
           data:{
             "title": this.questionnaireTitle,
-            "user_id": Taro.getStorageSync("user_id"),
+            "user_id": this.userID,
             "questions": [
               this.question
             ]

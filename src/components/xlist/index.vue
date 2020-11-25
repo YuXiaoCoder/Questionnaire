@@ -37,6 +37,10 @@
       >
         统计
       </AtActionSheetItem>
+
+      <!-- 分隔符 -->
+      <AtDivider />
+
       <AtActionSheetItem
       :onClick="handleDeleteQuestionnaire"
       >
@@ -52,6 +56,10 @@
 <script>
 // Taro
 import Taro from '@tarojs/taro'
+
+// 分隔符
+import { AtDivider } from 'taro-ui-vue'
+import "taro-ui-vue/dist/style/components/divider.scss"
 
 // 列表
 import { AtList } from "taro-ui-vue"
@@ -96,6 +104,7 @@ export default {
     AtActionSheet,
     AtActionSheetItem,
     AtMessage,
+    AtDivider,
   },
   data () {
     return {
@@ -125,6 +134,8 @@ export default {
       questionnaireID: null,
       // 动作面板
       actionPanelFlag: false,
+      // 用户ID
+      userID: 0,
     }
   },
   methods: {
@@ -217,15 +228,47 @@ export default {
     // 获取屏幕高度
     this.screenHeight = Taro.getSystemInfoSync().windowHeight;
 
-    // 获取Cookie
-    let cookie = Taro.getStorageSync("cookie");
-
-    if (cookie == undefined || cookie == null || cookie == "") {
-      // 清除所有缓存
-      Taro.clearStorageSync();
-      // 跳转到首页
-      Taro.redirectTo({
-        url: "/pages/index/index",
+    // 用户ID
+    if (this.userID == 0) {
+      // 登录
+      Taro.login({
+        success: res => {
+          Taro.request({
+            url: API_GATEWAY + "/login",
+            data: {
+              code: res.code
+            },
+            success: res => {
+              // 存储用户ID
+              this.userID = res.data['user_id'];
+              // 获取问卷列表
+              Taro.request({
+                url: API_GATEWAY + "/questionnaires?type=" + this.xlistType + "&user_id=" + this.userID,
+                header: {
+                  'content-type': 'application/json',
+                },
+                methods: "GET",
+                success: (res) => {
+                  this.questionnaires = res.data.questionnaires;
+                }
+              });
+            },
+            fail: res => {
+              // 消息通知
+              Taro.atMessage({
+                'message': '请检查后端服务',
+                'type': 'error',
+              });
+            }
+          })
+        },
+        fail: res => {
+          // 消息通知
+          Taro.atMessage({
+            'message': '请检查网络',
+            'type': 'error',
+          });
+        }
       });
     }
   },
@@ -241,19 +284,6 @@ export default {
     // 设置页面标题
     Taro.setNavigationBarTitle({
       title: this.xlistTitle
-    });
-
-    // 获取问卷列表
-    Taro.request({
-      url: API_GATEWAY + "/questionnaires?type=" + this.xlistType + "&user_id=" + Taro.getStorageSync("user_id"),
-      header: {
-        'content-type': 'application/json',
-        "Cookie": Taro.getStorageSync("cookie")
-      },
-      methods: "GET",
-      success: (res) => {
-        this.questionnaires = res.data.questionnaires;
-      }
     });
   }
 }

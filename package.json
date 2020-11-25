@@ -35,30 +35,31 @@
   ],
   "author": "",
   "dependencies": {
+    "@antv/f2": "^3.8.0-alpha.1",
     "@babel/runtime": "^7.7.7",
     "@tarojs/cli": "3.0.14",
     "@tarojs/components": "3.0.14",
     "@tarojs/runtime": "3.0.14",
     "@tarojs/taro": "3.0.14",
     "lodash": "4.17.15",
-    "vue-template-compiler": "^2.5.0",
+    "shortid": "^2.2.16",
+    "taro-ui-vue": "^1.0.0-alpha.5",
     "vue": "^2.5.0",
-    "taro-ui-vue": "^1.0.0-alpha.5"
+    "vue-template-compiler": "^2.5.0"
   },
   "devDependencies": {
     "@babel/core": "^7.8.0",
     "@tarojs/mini-runner": "3.0.14",
     "@tarojs/webpack-runner": "3.0.14",
     "@types/webpack-env": "^1.13.6",
+    "@typescript-eslint/eslint-plugin": "^2.x",
+    "@typescript-eslint/parser": "^2.x",
     "babel-preset-taro": "3.0.14",
     "eslint": "^6.8.0",
-    "vue-loader": "^15.9.2",
-    "eslint-plugin-vue": "^6.x",
     "eslint-config-taro": "3.0.14",
+    "eslint-plugin-vue": "^6.x",
     "stylelint": "9.3.0",
-    "@typescript-eslint/parser": "^2.x",
-    "@typescript-eslint/eslint-plugin": "^2.x",
     "typescript": "^3.7.0",
-    "eslint-plugin-vue": "^6.x"
+    "vue-loader": "^15.9.2"
   }
 }

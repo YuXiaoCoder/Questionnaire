@@ -201,6 +201,8 @@ export default {
       questionnaireType: 1,
       // 问题对象
       questionItem: null,
+      // 用户ID
+      userID: 0,
     }
   },
   methods: {
@@ -214,7 +216,7 @@ export default {
           method: 'POST',
           data: {
             "title": value,
-            "user_id": Taro.getStorageSync("user_id"),
+            "user_id": this.userID,
             "type": this.questionnaireType,
           },
           success: (res) => {
@@ -353,15 +355,36 @@ export default {
     this.questionnaireID = getCurrentInstance().router.params.id;
     this.questionnaireType = parseInt(getCurrentInstance().router.params.type);
 
-    // 获取Cookie
-    let cookie = Taro.getStorageSync("cookie");
-
-    if (cookie == undefined || cookie == null || cookie == "") {
-      // 清除所有缓存
-      Taro.clearStorageSync();
-      // 跳转到首页
-      Taro.redirectTo({
-        url: "/pages/index/index",
+    // 用户ID
+    if (this.userID == 0) {
+      // 登录
+      Taro.login({
+        success: res => {
+          Taro.request({
+            url: API_GATEWAY + "/login",
+            data: {
+              code: res.code
+            },
+            success: res => {
+              // 存储用户ID
+              this.userID = res.data['user_id'];
+            },
+            fail: res => {
+              // 消息通知
+              Taro.atMessage({
+                'message': '请检查后端服务',
+                'type': 'error',
+              });
+            }
+          })
+        },
+        fail: res => {
+          // 消息通知
+          Taro.atMessage({
+            'message': '请检查网络',
+            'type': 'error',
+          });
+        }
       });
     }
   },

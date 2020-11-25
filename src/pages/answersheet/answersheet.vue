@@ -1,10 +1,9 @@
 <template>
   <view class="answersheet" :style="{height: screenHeight+'px'}">
     <view class="index" :style="{height: scrollBarHeight+'px'}">
-
       <!-- 问题列表 -->
       <AtList>
-      <view v-for="(item, index) in questionnaire.questions" :key="index">
+      <view v-for="(item, index) in questions" :key="index">
         <!-- 单选题 -->
         <AtCard
           :title='((index+"").length == 1 ? "0":"") + (index+1) + "、" + item.title'
@@ -13,10 +12,39 @@
         >
           <AtRadio
             :index='index'
-            :options="handleFormatOptions(item.options)"
+            :options="item.options"
             :value='answers[index].value'
             :onClick='handleSetChoice'
+            :v-bind:value="questions[index].options"
           />
+          <view v-if="questionnaireType == 1">
+            <AtInput
+              :index="index"
+              :name="'customOption-'+index"
+              type="text"
+              placeholder="请输入自定义选项"
+              :value="customOption"
+              :cursor='customOption.length'
+              :onChange="handleChangeCustomOption"
+              v-model="customOption"
+            />
+            <AtButton
+              :index="index"
+              type='primary'
+              style="margin-top: 10rpx;"
+              :onClick="handleSubmitCustomOption"
+            >
+              添加
+            </AtButton>
+            <AtButton
+              :index="index"
+              type="secondary"
+              style="margin-top: 10rpx;"
+              :onClick="handleResetCustomOption"
+            >
+              清空
+            </AtButton>
+          </view>
         </AtCard>
 
         <!-- 多选题 -->
@@ -27,10 +55,38 @@
         >
           <AtCheckbox
             :index='index'
-            :options='handleFormatOptions(item.options)'
+            :options='item.options'
             :selectedList="answers[index].value"
             :onChange='handleSetChoice'
+            :v-bind:value="questions[index].options"
           />
+          <view v-if="questionnaireType == 1">
+            <AtInput
+              :index="index"
+              :name="'customOption-'+index"
+              type="text"
+              placeholder="请输入自定义选项"
+              :value="customOption"
+              :cursor='customOption.length'
+              :onBlur="handleChangeCustomOption"
+            />
+            <AtButton
+              :index="index"
+              type='primary'
+              style="margin-top: 10rpx;"
+              :onClick="handleSubmitCustomOption"
+            >
+              添加
+            </AtButton>
+            <AtButton
+              :index="index"
+              type="secondary"
+              style="margin-top: 10rpx;"
+              :onClick="handleResetCustomOption"
+            >
+              清空
+            </AtButton>
+          </view>
         </AtCard>
 
         <!-- 填空题 -->
@@ -115,11 +171,14 @@ import "taro-ui-vue/dist/style/components/badge.scss"
 // 图标
 import "taro-ui-vue/dist/style/components/icon.scss"
 
-// 输入框
-import "taro-ui-vue/dist/style/components/input.scss"
+// 输入框: 自定义组件
+import AtInput from "../../components/input"
 
 // 文本框
 import "taro-ui-vue/dist/style/components/textarea.scss"
+
+// 按钮
+import AtButton from "../../components/button"
 
 export default {
   components: {
@@ -130,6 +189,8 @@ export default {
     AtCheckbox,
     AtDivider,
     AtMessage,
+    AtInput,
+    AtButton,
   },
   data () {
     return {
@@ -151,10 +212,17 @@ export default {
         title: "",
         questions: []
       },
+      questions: [],
       // 问卷ID
       questionnaireID: null,
+      // 问卷类型: 投票/问卷
+      questionnaireType: 1,
       // 答案
       answers: [],
+      // 自定义选项
+      customOption: "",
+      // 用户ID
+      userID: 0,
     }
   },
   created() {
@@ -162,16 +230,36 @@ export default {
     this.screenHeight = Taro.getSystemInfoSync().windowHeight;
     // 获取查询参数
     this.questionnaireID = parseInt(getCurrentInstance().router.params.id);
-
-    // 获取Cookie
-    let cookie = Taro.getStorageSync("cookie");
-
-    if (cookie == undefined || cookie == null || cookie == "") {
-      // 清除所有缓存
-      Taro.clearStorageSync();
-      // 跳转到首页
-      Taro.redirectTo({
-        url: "/pages/index/index",
+    // 用户ID
+    if (this.userID == 0) {
+      // 登录
+      Taro.login({
+        success: res => {
+          Taro.request({
+            url: API_GATEWAY + "/login",
+            data: {
+              code: res.code
+            },
+            success: res => {
+              // 存储用户ID
+              this.userID = res.data['user_id'];
+            },
+            fail: res => {
+              // 消息通知
+              Taro.atMessage({
+                'message': '请检查后端服务',
+                'type': 'error',
+              });
+            }
+          })
+        },
+        fail: res => {
+          // 消息通知
+          Taro.atMessage({
+            'message': '请检查网络',
+            'type': 'error',
+          });
+        }
       });
     }
   },
@@ -193,6 +281,8 @@ export default {
       methods: "GET",
       success: (res) => {
         this.questionnaire = res.data;
+        this.questions = this.questionnaire['questions'];
+        this.questionnaireType = this.questionnaire["type"]
         // 初始化答案
         this.questionnaire.questions.map(element => {
           if (element.type == 2) {
@@ -217,7 +307,7 @@ export default {
         url: API_GATEWAY + '/answersheets',
         method: 'POST',
         data: {
-          "user_id": Taro.getStorageSync("user_id"),
+          "user_id": this.userID,
           "answers": this.answers,
           "questionnaire_id": this.questionnaireID,
         },
@@ -226,6 +316,10 @@ export default {
           Taro.atMessage({
             'message': '提交成功',
             'type': 'success',
+          });
+          // 跳转到首页
+          Taro.redirectTo({
+            url: "/pages/index/index",
           });
         },
         fail: (res) => {
@@ -238,20 +332,34 @@ export default {
       });
     },
 
-    // 格式化选项
-    handleFormatOptions(options) {
-      return options.map(itme => {
-        return {
-          "label": itme.value,
-          "value": itme.key,
-        }
-      })
-    },
-
     // 设置选择题选项
     handleSetChoice(value, index) {
       this.answers[index].value = value
     },
+
+    // 修改自定义选项
+    handleChangeCustomOption(value) {
+      this.customOption = value;
+    },
+
+    // 添加自定义选项
+    handleSubmitCustomOption(event, index) {
+      if (this.customOption != "") {
+        // 将值添加到指定题目的选项中
+        this.questions[index].options.push({
+          value: this.customOption,
+          label: this.customOption,
+        });
+        // 清空输入框
+        this.customOption = "";
+      }
+    },
+
+    // 重置输入框
+    handleResetCustomOption(event, index) {
+      // 清空输入框
+      this.customOption = "";
+    }
   },
 }
 </script>

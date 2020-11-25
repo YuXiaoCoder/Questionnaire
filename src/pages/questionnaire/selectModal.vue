@@ -24,7 +24,9 @@
         <AtList class="selectModel">
           <view v-for="(item, index) in question.options" :key="index" >
             <QSList :onClick="handleDeleteQuestionOption" :index="index" :key="index">
-              <view><input type="text" :key="item.key" v-model="item.value" placeholder="请输入选项"/></view>
+              <view>
+                <input type="text" :key="item.value" v-model="item.value" placeholder="请输入选项"/>
+              </view>
             </QSList>
           </view>
         </AtList>
@@ -120,12 +122,15 @@ export default {
   },
   data () {
     return {
+      // 问题
       question: {
         id: 0,
         title: "新建问题",
         options: [],
         type: this.questionType
       },
+      // 用户ID
+      userID: 0,
     }
   },
   components: {
@@ -145,6 +150,39 @@ export default {
     if(this.questionItem){
       this.question = JSON.parse(JSON.stringify(this.questionItem))
     }
+
+    // 用户ID
+    if (this.userID == 0) {
+      // 登录
+      Taro.login({
+        success: res => {
+          Taro.request({
+            url: API_GATEWAY + "/login",
+            data: {
+              code: res.code
+            },
+            success: res => {
+              // 存储用户ID
+              this.userID = res.data['user_id'];
+            },
+            fail: res => {
+              // 消息通知
+              Taro.atMessage({
+                'message': '请检查后端服务',
+                'type': 'error',
+              });
+            }
+          })
+        },
+        fail: res => {
+          // 消息通知
+          Taro.atMessage({
+            'message': '请检查网络',
+            'type': 'error',
+          });
+        }
+      });
+    }
   },
   methods: {
     // 修改问题标题
@@ -155,8 +193,8 @@ export default {
     // 添加选项
     handleAddQuestionOption() {
       this.question.options.push({
-        key: this.question.options.length.toString(),
-        value: "选项"
+        value: "选项" + (this.question.options.length + 1).toString(),
+        label: "选项" + (this.question.options.length + 1).toString(),
       });
     },
 
@@ -164,11 +202,11 @@ export default {
     handleDeleteQuestionOption(index) {
       // 删除选项
       this.question.options.splice(index, 1)
-      // 更新索引
-      this.question.options = this.question.options.map((item, index) => {
+      // 更新选项
+      this.question.options = this.question.options.map((item) => {
         return {
-          key: index.toString(),
-          value: item.value
+          label: item.value,
+          value: item.value,
         }
       })
     },
@@ -184,13 +222,21 @@ export default {
 
     // 保存按钮
     handleSaveQuestion(){
+      // 更新选项
+      this.question.options = this.question.options.map((item) => {
+        return {
+          label: item.value,
+          value: item.value,
+        }
+      })
+
       if(!this.questionnaireID){
         Taro.request({
           url: API_GATEWAY + '/questionnaires',
           method: 'POST',
           data:{
             "title": this.questionnaireTitle,
-            "user_id": Taro.getStorageSync("user_id"),
+            "user_id": this.userID,
             "type": this.questionnaireType,
             "questions": [
               this.question
@@ -291,7 +337,7 @@ export default {
 
 <style lang="scss">
 .selectModel{
-    max-height: 324rpx;
+    max-height: 400rpx;
     overflow-x: hidden;
 }
 </style>

@@ -47,6 +47,15 @@ taro create --name analysis
 taro create --name login
 ```
 
++ 运行项目:
+
+```bash
+export NODE_ENV=production
+yarn dev:weapp
+```
+
+style="position: static;"
+
 ## ECharts
 
 ```bash
@@ -61,8 +70,3 @@ cp -r echarts-for-weixin/ec-canvas Questionnaire/src/components
 + 图标: `https://88icon.com/`
 
 ***
-
-
-+ Bug:
-  + 在新建投票后，先创建问题，再更新标题，标题未更新
-  + 选项模态框当选项过多时, 模态框无滚动条。

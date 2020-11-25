@@ -1,5 +1,5 @@
 <template>
-  <view class="analysis" :style="{height: screenHeight+'px'}">
+  <view class="analysis">
     <view class="index">
       <!-- 问题列表 -->
       <AtList>
@@ -10,15 +10,15 @@
             class="at-card"
           >
             <!-- 详细占比 -->
-            <view v-if="statistics.length != 0 && JSON.stringify(statistics[index].statistics) != '{}'">
-              <view v-for="(value, key) in statistics[index]['statistics']" :key="key">
-                {{ key }}: {{ questionnaire.questions[index].options[letter[key]].value }}
+            <view v-if="statistics.length != 0 && JSON.stringify(statistics[index].result) != '{}'">
+              <view v-for="(value, key, optionIndex) in statistics[index].result" :key="key">
+                {{ letter[optionIndex] }}: {{ key }}
                 <AtProgress :percent='value' />
               </view>
 
               <!-- 饼状图 -->
-              <view class="chart" style="height: 200px;">
-                <ec-canvas :ec="ecs[index]"></ec-canvas>
+              <view class="chart">
+                <ec-canvas :ec="ecs[index]" :id="`chart-${index}`" :canvas-id="`chart-${index}`"></ec-canvas>
               </view>
             </view>
             <view v-else>
@@ -32,8 +32,8 @@
             class="at-card"
           >
             <AtList>
-            <view v-if="statistics.length != 0 && JSON.stringify(statistics[index].statistics) != '{}'">
-              <view v-for="(value, key) in statistics[index]['statistics']" :key="key">
+            <view v-if="statistics.length != 0 && JSON.stringify(statistics[index].result) != '{}'">
+              <view v-for="(value, key) in statistics[index].result" :key="key">
                 <AtListItem :title='key' :hasBorder="false" />
               </view>
             </view>
@@ -113,34 +113,34 @@ export default {
       // 统计分析
       statistics: [],
       // 字母
-      letter: {
-        "A": 0,
-        "B": 1,
-        "C": 2,
-        "D": 3,
-        "E": 4,
-        "F": 5,
-        "G": 6,
-        "H": 7,
-        "I": 8,
-        "J": 9,
-        "K": 10,
-        "L": 11,
-        "M": 12,
-        "N": 13,
-        "O": 14,
-        "P": 15,
-        "Q": 16,
-        "R": 17,
-        "S": 18,
-        "T": 19,
-        "U": 20,
-        "V": 21,
-        "W": 22,
-        "X": 23,
-        "Y": 24,
-        "Z": 25
-      }
+      letter: [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H",
+        "I",
+        "J",
+        "K",
+        "L",
+        "M",
+        "N",
+        "O",
+        "P",
+        "Q",
+        "R",
+        "S",
+        "T",
+        "U",
+        "V",
+        "W",
+        "X",
+        "Y",
+        "Z"
+      ]
     }
   },
   created(){
@@ -148,18 +148,6 @@ export default {
     this.screenHeight = Taro.getSystemInfoSync().windowHeight;
     // 获取查询参数
     this.questionnaireID = parseInt(getCurrentInstance().router.params.id);
-
-    // 获取Cookie
-    let cookie = Taro.getStorageSync("cookie");
-
-    if (cookie == undefined || cookie == null || cookie == "") {
-      // 清除所有缓存
-      Taro.clearStorageSync();
-      // 跳转到首页
-      Taro.redirectTo({
-        url: "/pages/index/index",
-      });
-    }
 
     // 获取问卷
     Taro.request({
@@ -208,11 +196,18 @@ export default {
 
                   // 数据
                   let data = []
-                  for (let key in this.statistics[index].statistics) {
+
+                  // 选项编号
+                  let i = 0
+                  let result = this.statistics[index].result;
+
+                  // 添加结果
+                  for (let v in result) {
                     data.push({
-                      "value": this.statistics[index].statistics[key],
-                      "name": key,
+                      "value": result[v],
+                      "name": this.letter[i]
                     })
+                    i++
                   }
                   option.series[0].data = data
 
@@ -240,14 +235,12 @@ export default {
       }
     });
   },
-  mounted() {
-    setTimeout(() => {
-      Taro.createSelectorQuery().select('.index').boundingClientRect(rect=>{
-        console.log(Math.floor(rect.height));
-      }).exec()
-    }, 300)
-  },
-  methods: {
-  },
 }
 </script>
+
+<style lang="scss">
+.chart {
+  width: 100%;
+  height: 300px;
+}
+</style>
