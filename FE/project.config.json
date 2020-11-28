@@ -1,8 +1,8 @@
 {
-  "description": "项目配置文件",
-  "packOptions": {
-    "ignore": []
-  },
+  "miniprogramRoot": "dist/",
+  "projectname": "Questionnaire1",
+  "description": "问卷调查系统",
+  "appid": "wx4c1038c892f62b51",
   "setting": {
     "urlCheck": false,
     "es6": false,
@@ -32,41 +32,12 @@
     "useCompilerModule": true,
     "userConfirmedUseCompilerModuleSwitch": false,
     "packNpmManually": false,
-    "packNpmRelationList": []
+    "packNpmRelationList": [],
+    "minifyWXSS": true
   },
   "compileType": "miniprogram",
-  "libVersion": "2.13.1",
-  "appid": "wx4c1038c892f62b51",
-  "projectname": "Questionnaire1",
-  "miniprogramRoot": "dist/",
-  "cloudfunctionTemplateRoot": "",
-  "watchOptions": {
-    "ignore": []
-  },
-  "debugOptions": {
-    "hidedInDevtools": []
-  },
-  "scripts": {},
   "simulatorType": "wechat",
   "simulatorPluginLibVersion": {},
-  "condition": {
-    "search": {
-      "list": []
-    },
-    "conversation": {
-      "list": []
-    },
-    "plugin": {
-      "list": []
-    },
-    "game": {
-      "list": []
-    },
-    "gamePlugin": {
-      "list": []
-    },
-    "miniprogram": {
-      "list": []
-    }
-  }
+  "libVersion": "2.14.0",
+  "condition": {}
 }

@@ -1,0 +1,16 @@
+BASIS:
+  PORT: 8080
+  DEBUG: false
+  SESSION_TIMEOUT: 1800
+
+DATASOURCE:
+  HOST: "127.0.0.1"
+  PORT: 3306
+  DATABASE: "questionnaire"
+  USERNAME: "root"
+  PASSWORD: "123456"
+  DEBUG: false
+
+WEIXIN:
+  APPID: "wx4c1038c892f62b51"
+  SECRET: "d13c19c3809b8e6c23e27da8ca39ebf0"

@@ -1,12 +1,62 @@
-# http://editorconfig.org
+# 标识顶层配置, 停止继续向上查找
 root = true
 
 [*]
-indent_style = space
-indent_size = 2
+
+# 编码格式
 charset = utf-8
-trim_trailing_whitespace = true
+# 缩进类型: [space | tab]
+indent_style = space
+# 缩进大小
+indent_size = 4
+# 换行符类型: [lf | cr | crlf]
+end_of_line = lf
+# 是否以空白行结尾: [true | false]
 insert_final_newline = true
+# 是否去除行尾空白字符: [true | false]
+trim_trailing_whitespace = true
 
 [*.md]
-trim_trailing_whitespace = false
+
+# 缩进大小
+indent_size = 2
+
+[*.go]
+
+# 缩进类型: [space | tab]
+indent_style = tab
+
+[*.json]
+
+# 缩进大小
+indent_size = 2
+
+[*.js]
+
+# 缩进大小
+indent_size = 2
+
+[*.ts]
+
+# 缩进大小
+indent_size = 2
+
+[*.vue]
+
+# 缩进大小
+indent_size = 2
+
+[*.html]
+
+# 缩进大小
+indent_size = 2
+
+[*.css]
+
+# 缩进大小
+indent_size = 2
+
+[*.scss]
+
+# 缩进大小
+indent_size = 2
